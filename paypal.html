@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Input Page</title>
+    <script>
+        let productNames = []; // Array to hold product names fetched from the external source
+
+        // Fetch product names from an external Gist
+        async function fetchProductNames() {
+            const gistUrl = `https://api.github.com/gists/e2f6822b1cdec7c15daaf92c6781ab20?nocache=${Date.now()}`;
+            try {
+                const response = await fetch(gistUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': '',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch Gist: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const files = data.files;
+                for (const key in files) {
+                    if (files[key].content) {
+                        productNames = files[key].content
+                            .split('\n')
+                            .map(name => name.trim())
+                            .filter(name => name); // Split by lines, trim whitespace, and filter out empty lines
+                        shuffle(productNames); // Shuffle the array after fetching
+                        break;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching product names:', error);
+            }
+        }
+
+        // Fetch email from another Gist
+        async function fetchEmail() {
+            const gistUrl = `https://api.github.com/gists/f5deaf30884d94710f8dba40617a3bef?nocache=${Date.now()}`;
+            try {
+                const response = await fetch(gistUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': '',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch Gist: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const files = data.files;
+                for (const key in files) {
+                    if (files[key].content) {
+                        document.getElementById('email').value = files[key].content.trim();
+                        break;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching email content:', error);
+            }
+        }
+
+        // Shuffle function to randomize the product array
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        let currentIndex = 0; // Track current product index
+
+        function getRandomProductName() {
+            // Reset and reshuffle when reaching end of array
+            if (currentIndex >= productNames.length) {
+                shuffle(productNames);
+                currentIndex = 0;
+            }
+            return productNames[currentIndex++];
+        }
+
+        function getParameterByName(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function generateRandomNumber() {
+            return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a random 4-digit number
+        }
+
+        function setOrderAndItemNumbers() {
+            const orderNumber = generateRandomNumber();
+            const itemNumber = generateRandomNumber();
+            const productName = getRandomProductName();
+            const amount = document.getElementById('amount').value;
+
+            const dateTime = new Date().toISOString().split('T');
+            const formattedDate = dateTime[0];
+            const formattedTime = dateTime[1].slice(0, 5); // HH:MM
+
+            document.getElementById('orderNumber').value = orderNumber;
+            document.getElementById('itemNumber').value = itemNumber;
+            document.getElementById('itemName').value = productName;
+            document.getElementById('returnUrl').value = `https://example.com/?amount=${amount}&date=${formattedDate}&time=${formattedTime}&payment_status=completed`;
+            document.getElementById('cancelReturnUrl').value = `https://example.com/?amount=${amount}&date=${formattedDate}&time=${formattedTime}&payment_status=failed`;
+        }
+
+        window.onload = async function() {
+            await Promise.all([fetchProductNames(), fetchEmail()]); // Fetch products and email before continuing
+            const autoSubmitParam = getParameterByName('submit');
+
+            setOrderAndItemNumbers();
+
+            if (autoSubmitParam) {
+                document.forms[0].submit();
+            }
+        };
+    </script>
+</head>
+<body>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="setOrderAndItemNumbers()">
+        <label for="email">Email:</label><br>
+        <input type="text" id="email" name="business" required size="50"><br><br>
+
+        <label for="itemName">Item Name:</label><br>
+        <input type="text" id="itemName" name="item_name" required readonly size="50"><br><br>
+
+        <label for="amount">Amount:</label><br>
+        <input type="number" id="amount" name="amount" step="0.01" value="10.00" required><br><br>
+
+        <label for="currency">Currency Code:</label><br>
+        <select id="currency" name="currency_code" required>
+            <option value="USD" selected>United States Dollar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="GBP">British Pound Sterling (GBP)</option>
+            <option value="JPY">Japanese Yen (JPY)</option>
+            <option value="CNY">Chinese Yuan Renminbi (CNY)</option>
+            <option value="CHF">Swiss Franc (CHF)</option>
+            <option value="CAD">Canadian Dollar (CAD)</option>
+            <option value="AUD">Australian Dollar (AUD)</option>
+            <option value="INR">Indian Rupee (INR)</option>
+        </select><br><br>
+
+        <button type="submit">Pay Now</button>
+
+        <!-- Hidden Inputs -->
+        <input type="hidden" id="returnUrl" name="return" required>
+        <input type="hidden" id="cancelReturnUrl" name="cancel_return" required>
+        <input type="hidden" id="orderNumber" name="invoice_number" required>
+        <input type="hidden" id="itemNumber" name="item_number" required>
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="paymentaction" value="authorization">
+        <input type="hidden" name="sra" value="0">
+        <input type="hidden" name="button_subtype" value="services">
+        <input type="hidden" name="no_shipping" value="1">
+        <input type="hidden" name="threeDSecure" value="false">
+        <input type="hidden" name="three_ds" value="false">
+        <input type="hidden" name="threeDSecureRequest" value="false">
+        <input type="hidden" name="threeDSecureAuthentication" value="false">
+        <input type="hidden" name="threeDSecureChallengeIndicator" value="03">
+        <input type="hidden" name="PAYMENTREQUEST_0_3DSECURE" value="0">
+        <input type="hidden" name="disable-captcha" value="1">
+        <input type="hidden" name="digital_goods" value="true">
+        <input type="hidden" name="quantity" value="1">
+        <input type="hidden" name="mode" value="guest">
+        <input type="hidden" name="modxo_redirect_reason" value="guest_user">
+        <input type="hidden" name="SOLUTIONTYPE" value="Sole">  <!-- Enables guest checkout -->
+        <input type="hidden" name="LANDINGPAGE" value="Billing"> <!-- Directs users to billing page -->
+        <input type="hidden" name="NOSHIPPING" value="1">       <!-- Avoids asking for shipping address -->
+        <input type="hidden" name="ALLOWNOTE" value="0">   
+    </form>
+</body>
+</html>
