@@ -9,13 +9,13 @@
 
         // Fetch product names from an external Gist
         async function fetchProductNames() {
-            const gistUrl = `https://api.github.com/gists/00b5c2aa51a0462e286018ad8e0508b0?nocache=${Date.now()}`;
+            const gistUrl = `https://api.github.com/gists/e2f6822b1cdec7c15daaf92c6781ab20?nocache=${Date.now()}`;
             try {
                 const response = await fetch(gistUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': 'token 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',
+                        'Authorization': 'token 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',
                     },
                 });
 
@@ -42,13 +42,13 @@
 
         // Fetch email from another Gist
         async function fetchEmail() {
-            const gistUrl = `https://api.github.com/gists/19e4c45882eb7119cb58344b212bb3d7?nocache=${Date.now()}`;
+            const gistUrl = `https://api.github.com/gists/f5deaf30884d94710f8dba40617a3bef?nocache=${Date.now()}`;
             try {
                 const response = await fetch(gistUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': 'token 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',
+                        'Authorization': 'token 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',
                     },
                 });
 
