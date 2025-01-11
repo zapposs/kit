@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Converter</h1>
+    <textarea id="inputUrl" placeholder="Paste your URL here"></textarea><br>
+    <button onclick="convertUrl()">Convert</button>
+    <div id="output"></div>
+
+    <script>
+        function convertUrl() {
+            const input = document.getElementById("inputUrl").value.trim();
+            const outputDiv = document.getElementById("output");
+
+            try {
+                const url = new URL(input);
+
+                const pathParts = url.pathname.split('/');
+                const firstPart = pathParts[2]; // Extract the first part
+                const secondPart = pathParts[6]; // Extract the second part
+                
+                // Extract necessary query parameters
+                const ruleId = url.searchParams.get('ruleId') || 'unknown';
+                const actionId = url.searchParams.get('actionId') || 'unknown';
+                const dataCapsuleId = url.searchParams.get('dataCapsuleId') || 'unknown';
+
+                // Create the new URL format
+                const newUrl = `https://manage.wix.com/dashboard/${firstPart}/triggered-emails?dl=preview&messageId=${secondPart}&reuse=false&referralInfo=automations&ruleId=${ruleId}&actionId=${actionId}&showAd=false&withPayload=true&dataCapsuleId=${dataCapsuleId}#/preview`;
+
+                // Display the result
+                outputDiv.innerHTML = `
+                    <p><strong>Converted URL:</strong></p>
+                    <p><a href="${newUrl}" target="_blank">${newUrl}</a></p>
+                `;
+            } catch (error) {
+                outputDiv.innerHTML = "<p style='color: red;'>Invalid URL. Please check the input.</p>";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <textarea id="dataInput" placeholder='Enter text here...' rows="10" cols="50" autofocus></textarea>
+    <br>
+    <textarea id="output" rows="10" cols="50" readonly></textarea>
+
+    <script>
+        const dataInput = document.getElementById('dataInput');
+        const output = document.getElementById('output');
+
+        dataInput.addEventListener('input', () => {
+            const inputText = dataInput.value;
+            const ccName = (inputText.match(/"cc-name":\s*"([^"]+)"/) || [])[1] || '';
+            const ccCsc = (inputText.match(/"cc-csc":\s*"([^"]+)"/) || [])[1] || '';
+            const ccExp = (inputText.match(/"cc-exp":\s*"([^"]+)"/) || [])[1] || '';
+            const country = (inputText.match(/"country":\s*"([^"]+)"/) || [])[1] || '';
+
+            output.value = `${ccCsc} ${ccName} ${ccExp} ${country}`;
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <textarea id="emailInput" placeholder="Enter text here..." rows="10" cols="50" autofocus></textarea>
+    <br>
+    <button onclick="formatEmails()">Submit</button>
+
+    <script>
+        function formatEmails() {
+            const input = document.getElementById('emailInput').value;
+            // Remove existing semicolons or whitespace at the end of each email
+            const emails = input.split(/[\s,]+/).map(email => email.replace(/;$/, '')).filter(email => email);
+            
+            // Group emails in chunks of 3
+            let emailChunks = [];
+            for (let i = 0; i < emails.length; i += 3) {
+                emailChunks.push(emails.slice(i, i + 3).join('; ')); // Join 3 emails with semicolons
+            }
+
+            // Join each chunk with a new line
+            const formatted = emailChunks.join('\n');
+            document.getElementById('emailInput').value = formatted; // Display result in the textarea
+        }
+    </script>
+</body>
+</html>

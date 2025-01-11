@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <ul id="toolList"></ul>
+
+  <script>
+    // Dynamically detect the GitHub username, repository name, and current file name
+    const urlParts = window.location.hostname.split('.');
+    const repoOwner = urlParts[0]; // Username from URL, e.g., 'danielericgold'
+    const repoName = window.location.pathname.split('/')[1]; // Repository name, e.g., 'tools'
+    
+    // Extract the current file name from the URL (e.g., 'index.html' or 'x.html')
+    const currentFileName = window.location.pathname.split('/').pop() || 'index.html';
+
+    const baseURL = `https://${repoOwner}.github.io/${repoName}/`;
+
+    async function fetchHTMLFiles() {
+      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`;
+      
+      try {
+        const response = await fetch(apiUrl);
+        const files = await response.json();
+        
+        // Filter for HTML files, excluding the current file
+        const htmlFiles = files.filter(file => file.name.endsWith('.html') && file.name !== currentFileName);
+        
+        // Populate the tool list with links to each HTML file
+        const toolList = document.getElementById('toolList');
+        htmlFiles.forEach(file => {
+          const listItem = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = `${baseURL}${file.name}`;
+          link.textContent = file.name.replace('.html', '').replace(/-/g, ' ');
+          link.target = "_blank"; // Open in new tab
+          listItem.appendChild(link);
+          toolList.appendChild(listItem);
+        });
+      } catch (error) {
+        console.error('Error fetching file list:', error);
+      }
+    }
+
+    // Fetch HTML files on page load
+    fetchHTMLFiles();
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const textarea = document.getElementById('textarea');
+        const form = document.getElementById('form');
+        const ccNameInput = form.querySelector('[name="cc-name"]');
+        const nameInput = form.querySelector('[name="name"]');
+        const emailInput = form.querySelector('[name="email"]');
+
+        // Function to duplicate cc-name if it is a single word
+        function duplicateCCNameIfOneWord() {
+            const ccNameValue = ccNameInput.value.trim();
+            const words = ccNameValue.split(/\s+/); // Split by whitespace
+            if (words.length === 1 && ccNameValue.length > 0) {
+                ccNameInput.value = `${ccNameValue} ${ccNameValue}`; // Duplicate the word
+            }
+        }
+
+        // Function to generate a random 4-digit number (no repeated digits)
+        function generateRandom4Digits() {
+            let digits = new Set();
+            while (digits.size < 4) {
+                digits.add(Math.floor(Math.random() * 10)); // Random digit between 0 and 9
+            }
+            return Array.from(digits).join('');
+        }
+
+        // Function to remove all special characters from cc-name
+        function removeSpecialChars(text) {
+            return text.replace(/[^a-zA-Z0-9\s]/g, ''); // Remove all non-alphanumeric characters
+        }
+
+        // Function to synchronize the name input with cc-name
+        function syncNameWithCCName() {
+            nameInput.value = ccNameInput.value; // Copy cc-name value to name field
+        }
+
+        // Function to update email based on cc-name
+        function updateEmail() {
+            const sanitizedCCName = removeSpecialChars(ccNameInput.value).replace(/\s+/g, ''); // Remove spaces
+            const randomDigits = generateRandom4Digits();
+            emailInput.value = `${sanitizedCCName}${randomDigits}@gmail.com`.toLowerCase(); // Generate the email in lowercase
+        }
+
+        textarea.addEventListener('paste', (event) => {
+            event.preventDefault();
+
+            // Clear all input fields in the form
+            Array.from(form.elements).forEach(input => {
+                if (input.tagName === 'INPUT') {
+                    input.value = '';
+                }
+            });
+
+            const pastedData = (event.clipboardData || window.clipboardData).getData('text');
+            const data = {};
+
+            // Extract key-value pairs manually
+            const lines = pastedData.split(/[\n,]+/); // Split by new lines or commas
+
+            lines.forEach(line => {
+                // Use regex to extract key-value pairs
+                const match = line.match(/["']?([^"':]+)["']?\s*:\s*["']?([^"']+)["']?/);
+                if (match) {
+                    const key = match[1].trim();
+                    const value = match[2].trim();
+                    data[key] = value; // Store key-value pairs
+                }
+            });
+
+            // Populate form fields with matched data
+            for (const [key, value] of Object.entries(data)) {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    // Convert postal code to uppercase
+                    if (key === 'postal-code') {
+                        input.value = value.toUpperCase();
+                    } else {
+                        input.value = value;
+                    }
+
+                    // Duplicate cc-name if it's a single word
+                    if (key === 'cc-name') {
+                        ccNameInput.value = value.trim(); // Set value for cc-name
+                        duplicateCCNameIfOneWord(); // Duplicate if necessary
+                    }
+                }
+            }
+
+            // Ensure name input matches the cc-name after paste
+            syncNameWithCCName();
+
+            // Update email based on the final cc-name
+            updateEmail();
+        });
+
+        // Add keyboard shortcut for form submission
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.altKey && event.key === 'F12') {
+                event.preventDefault();
+                form.submit();
+            }
+        });
+
+        // Event listener to duplicate cc-name if it becomes a single word
+        ccNameInput.addEventListener('input', duplicateCCNameIfOneWord);
+    });
+    </script>
+</head>
+<body>
+    <form id="form" action="" method="GET">
+        <textarea id="textarea" placeholder="Paste text here..." autofocus></textarea><br><br>
+
+        <fieldset>
+            <input type="text" name="cc-name" autocomplete="cc-name" placeholder="cc-name" required><br><br>
+            <input type="text" name="cc-number" autocomplete="cc-number" placeholder="cc-number" required><br><br>
+            <input type="text" name="cc-exp" autocomplete="cc-exp" placeholder="cc-exp" required><br><br>
+            <input type="text" name="cc-csc" autocomplete="cc-csc" placeholder="cc-csc" required><br><br>
+            <input type="text" name="name" autocomplete="name" placeholder="name" required><br><br>
+            <input type="text" name="country" autocomplete="country" placeholder="country"><br><br>
+            <input type="text" name="street-address" autocomplete="street-address" placeholder="street-address" required><br><br>
+            <input type="text" name="address-level1" autocomplete="address-level1" placeholder="address-level1" required><br><br>
+            <input type="text" name="address-level2" autocomplete="address-level2" placeholder="address-level2" required><br><br>
+            <input type="text" name="postal-code" autocomplete="postal-code" placeholder="postal-code" required><br><br>
+            <input type="tel" name="tel" autocomplete="tel" placeholder="tel" required><br><br>
+            <input type="email" name="email" autocomplete="email" placeholder="email" required>
+        </fieldset><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
