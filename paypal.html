@@ -9,7 +9,7 @@
 
         // Fetch product names from an external Gist
         async function fetchProductNames() {
-            const gistUrl = `https://gist.github.com/seeyeuh/00b5c2aa51a0462e286018ad8e0508b0?nocache=${Date.now()}`;
+            const gistUrl = `https://api.github.com/gists/00b5c2aa51a0462e286018ad8e0508b0?nocache=${Date.now()}`;
             try {
                 const response = await fetch(gistUrl, {
                     method: 'GET',
@@ -42,7 +42,7 @@
 
         // Fetch email from another Gist
         async function fetchEmail() {
-            const gistUrl = `https://gist.github.com/seeyeuh/19e4c45882eb7119cb58344b212bb3d7?nocache=${Date.now()}`;
+            const gistUrl = `https://api.github.com/gists/19e4c45882eb7119cb58344b212bb3d7?nocache=${Date.now()}`;
             try {
                 const response = await fetch(gistUrl, {
                     method: 'GET',
